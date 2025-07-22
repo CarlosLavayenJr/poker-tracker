@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PokerSession {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Session timing
+  startTime DateTime
+  endTime   DateTime?
+  duration  Int? // in minutes, calculated when session ends
+
+  // Game details
+  gameType GameType
+  environment   Environment
+  location String // Location name or app name
+
+  // Financial data
+  buyIn     Float // Money in
+  cashOut   Float? // Total money out (null if session is active)
+  profit    Float? // Calculated: cashOut - buyIn
+  profitPerHour Float? // Calculated: profit / (duration / 60)
+
+  // Session status
+  isActive Boolean @default(true)
+
+  @@map("poker_sessions")
+}
+
+enum GameType {
+  TOURNAMENT
+  CASH
+
+  @@map("game_type")
+}
+
+enum Environment {
+  LIVE
+  ONLINE
+
+  @@map("environment")
+}
